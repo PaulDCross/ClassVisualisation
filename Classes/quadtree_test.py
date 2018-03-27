@@ -21,16 +21,17 @@ if __name__ == "__main__":
     fps = 30
     one_pressed = False
     three_pressed = False
+    state = True
 
     boundary = qtr.Boundary(300, 300, 300, 300)
-    quadtree = qtr.QuadTree(boundary, 1)
+    quadtree = qtr.QuadTree(boundary, 4)
     points_in_range = []
     rectangle = None
     for i in range(10000):
         p = qtr.Point(int(random.gauss(dd[0]/2, dd[0]/8)), int(random.gauss(dd[1]/2, dd[1]/8)))
         quadtree.insert(p)
-    # for j in range(200, 400):
-    #     for k in range(200, 400):
+    # for j in range(290, 310):
+    #     for k in range(290, 310):
     #         p = qtr.Point(j, k)
     #         quadtree.insert(p)
 
@@ -43,17 +44,20 @@ if __name__ == "__main__":
                 game_exit = True
             elif event.type == pygame.MOUSEMOTION:
                 target = event.pos
-                print target
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.__dict__['button'] == 1:
                     one_pressed = True
                 elif event.__dict__['button'] == 3:
-                    three_pressed = True
+                    if state:
+                        state = False
+                        three_pressed = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.__dict__['button'] == 1:
                     one_pressed = False
                 elif event.__dict__['button'] == 3:
-                    three_pressed = False
+                    if not state:
+                        three_pressed = False
+                        state = True
 
         if one_pressed:
             width = 50
@@ -63,6 +67,7 @@ if __name__ == "__main__":
         if three_pressed:
             p = qtr.Point(target[0], target[1])
             quadtree.insert(p)
+            three_pressed = False
 
         if rectangle is not None:
             pygame.draw.rect(game_display, (0, 255, 0), (rectangle.x - rectangle.w, rectangle.y - rectangle.h, rectangle.w*2, rectangle.h*2), 1)

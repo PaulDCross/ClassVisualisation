@@ -30,7 +30,11 @@ class Boundary(object):
 class QuadTree(object):
     """docstring for Quad_Tree"""
     def __init__(self, boundary, capacity):
-        self.NODE_CAPACITY = capacity
+        if 1 < capacity:
+            self.NODE_CAPACITY = capacity
+        else:
+            raise ValueError("Capacity cannot equal 1")
+
         self.boundary = boundary
         self.points = []
         self.north_east = None
@@ -57,6 +61,16 @@ class QuadTree(object):
         self.north_west = QuadTree(nw, self.NODE_CAPACITY)
         self.south_east = QuadTree(se, self.NODE_CAPACITY)
         self.south_west = QuadTree(sw, self.NODE_CAPACITY)
+
+        for point in self.points:
+            if self.north_east.insert(point):
+                continue
+            if self.north_west.insert(point):
+                continue
+            if self.south_east.insert(point):
+                continue
+            if self.south_west.insert(point):
+                continue
 
         self.divided = True
 
@@ -103,6 +117,8 @@ class QuadTree(object):
     def show(self, frame):
         for point in self.points:
             pygame.draw.circle(frame, (255, 0, 0), (point.x, point.y), 2, 0)
+        pygame.draw.rect(frame, (0, 255, 0),
+                         (self.boundary.x - self.boundary.w, self.boundary.y - self.boundary.h, self.boundary.w * 2, self.boundary.h * 2), 1)
         if self.divided:
             self.north_east.show(frame)
             self.north_west.show(frame)
