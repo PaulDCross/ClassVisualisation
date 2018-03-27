@@ -1,13 +1,12 @@
-import commonLibraries.Vector as v
-import commonLibraries.extras as e
-import random
 import pygame
+
 
 class Point(object):
     """docstring for point"""
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
 
 class Boundary(object):
     """docstring for rectangle"""
@@ -22,18 +21,23 @@ class Boundary(object):
                 self.y - self.h <= p.y <= self.y + self.h)
 
     def intersects(self, rectangle):
-        return (((self.x + self.w) > (rectangle.x - rectangle.w)) and ((self.x - self.w) < (rectangle.x + rectangle.w)) and
-                ((self.y - self.h) < (rectangle.y + rectangle.h) and (self.y + self.h) > (rectangle.y - rectangle.h)))
+        return (((self.x + self.w) > (rectangle.x - rectangle.w)) and
+                ((self.x - self.w) < (rectangle.x + rectangle.w)) and
+                ((self.y - self.h) < (rectangle.y + rectangle.h) and
+                ((self.y + self.h) > (rectangle.y - rectangle.h))))
 
 
-class Quad_Tree(object):
+class QuadTree(object):
     """docstring for Quad_Tree"""
     def __init__(self, boundary, capacity):
         self.NODE_CAPACITY = capacity
         self.boundary = boundary
         self.points = []
+        self.north_east = None
+        self.north_west = None
+        self.south_east = None
+        self.south_west = None
         self.divided = False
-
 
     def subdivide(self):
         ne = Boundary(self.boundary.x + (self.boundary.w/2),
@@ -49,13 +53,12 @@ class Quad_Tree(object):
                       self.boundary.y + (self.boundary.h/2),
                       self.boundary.w/2, self.boundary.h/2)
 
-        self.north_east = Quad_Tree(ne, self.NODE_CAPACITY)
-        self.north_west = Quad_Tree(nw, self.NODE_CAPACITY)
-        self.south_east = Quad_Tree(se, self.NODE_CAPACITY)
-        self.south_west = Quad_Tree(sw, self.NODE_CAPACITY)
+        self.north_east = QuadTree(ne, self.NODE_CAPACITY)
+        self.north_west = QuadTree(nw, self.NODE_CAPACITY)
+        self.south_east = QuadTree(se, self.NODE_CAPACITY)
+        self.south_west = QuadTree(sw, self.NODE_CAPACITY)
 
         self.divided = True
-
 
     def insert(self, point):
         if not self.boundary.contains(point):
@@ -76,9 +79,7 @@ class Quad_Tree(object):
                 return True
             if self.south_west.insert(point):
                 return True
-
         return False
-
 
     def query_range(self, rectangle):
         points_in_range = []
@@ -98,7 +99,6 @@ class Quad_Tree(object):
         points_in_range += self.south_west.query_range(rectangle)
 
         return points_in_range
-
 
     def show(self, frame):
         for point in self.points:
