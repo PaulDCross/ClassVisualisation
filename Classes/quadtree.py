@@ -17,14 +17,17 @@ class Boundary(object):
         self.h = h
 
     def contains(self, p):
-        return (self.x - self.w <= p.x <= self.x + self.w and
-                self.y - self.h <= p.y <= self.y + self.h)
+        left = self.x - self.w
+        right = self.x + self.w
+        top = self.y - self.h
+        bottom = self.y + self.h
+        return left <= p.x <= right and top <= p.y <= bottom
 
     def intersects(self, rectangle):
         return (((self.x + self.w) > (rectangle.x - rectangle.w)) and
                 ((self.x - self.w) < (rectangle.x + rectangle.w)) and
-                ((self.y - self.h) < (rectangle.y + rectangle.h) and
-                ((self.y + self.h) > (rectangle.y - rectangle.h))))
+                ((self.y - self.h) < (rectangle.y + rectangle.h)) and
+                ((self.y + self.h) > (rectangle.y - rectangle.h)))
 
 
 class QuadTree(object):
@@ -44,22 +47,17 @@ class QuadTree(object):
         self.divided = False
 
     def subdivide(self):
-        ne = Boundary(self.boundary.x + (self.boundary.w/2),
-                      self.boundary.y - (self.boundary.h/2),
-                      self.boundary.w/2, self.boundary.h/2)
-        nw = Boundary(self.boundary.x - (self.boundary.w/2),
-                      self.boundary.y - (self.boundary.h/2),
-                      self.boundary.w/2, self.boundary.h/2)
-        se = Boundary(self.boundary.x + (self.boundary.w/2),
-                      self.boundary.y + (self.boundary.h/2),
-                      self.boundary.w/2, self.boundary.h/2)
-        sw = Boundary(self.boundary.x - (self.boundary.w/2),
-                      self.boundary.y + (self.boundary.h/2),
-                      self.boundary.w/2, self.boundary.h/2)
-
+        x = self.boundary.x
+        y = self.boundary.y
+        w = self.boundary.w/2
+        h = self.boundary.h/2
+        ne = Boundary(x + w, y - h, w, h)
         self.north_east = QuadTree(ne, self.NODE_CAPACITY)
+        nw = Boundary(x - w, y - h, w, h)
         self.north_west = QuadTree(nw, self.NODE_CAPACITY)
+        se = Boundary(x + w, y + h, w, h)
         self.south_east = QuadTree(se, self.NODE_CAPACITY)
+        sw = Boundary(x - w, y + h, w, h)
         self.south_west = QuadTree(sw, self.NODE_CAPACITY)
 
         for point in self.points:
@@ -76,23 +74,20 @@ class QuadTree(object):
 
     def insert(self, point):
         if not self.boundary.contains(point):
+            print "point [{}, {}] outside boundary [{}, {}, {}, {}]".format(point.x, point.y, self.boundary.x, self.boundary.y, self.boundary.w, self.boundary.h)
             return False
 
         if len(self.points) < self.NODE_CAPACITY:
             self.points.append(point)
             return True
-        else:
-            if not self.divided:
-                self.subdivide()
 
-            if self.north_east.insert(point):
-                return True
-            if self.north_west.insert(point):
-                return True
-            if self.south_east.insert(point):
-                return True
-            if self.south_west.insert(point):
-                return True
+        if not self.divided:
+            self.subdivide()
+
+        if self.north_east.insert(point) or self.north_west.insert(point) or self.south_east.insert(point) or self.south_west.insert(point):
+            return True
+
+        print "Could not add point [{}, {}]".format(point.x, point.y)
         return False
 
     def query_range(self, rectangle):
@@ -117,8 +112,7 @@ class QuadTree(object):
     def show(self, frame):
         for point in self.points:
             pygame.draw.circle(frame, (255, 0, 0), (point.x, point.y), 2, 0)
-        pygame.draw.rect(frame, (0, 255, 0),
-                         (self.boundary.x - self.boundary.w, self.boundary.y - self.boundary.h, self.boundary.w * 2, self.boundary.h * 2), 1)
+        pygame.draw.rect(frame, (0, 255, 0), (self.boundary.x - self.boundary.w, self.boundary.y - self.boundary.h, self.boundary.w * 2, self.boundary.h * 2), 1)
         if self.divided:
             self.north_east.show(frame)
             self.north_west.show(frame)

@@ -11,7 +11,7 @@ if __name__ == "__main__":
     GREEN = (0, 255, 0)
     BLUE = (0, 0, 255)
 
-    dd = [600, 600]
+    dd = [1000, 1000]
     game_display = pygame.display.set_mode(dd)
     pygame.display.set_caption('Quad Tree Test')
     pygame.display.update()
@@ -22,17 +22,20 @@ if __name__ == "__main__":
     one_pressed = False
     three_pressed = False
     state = True
-
-    boundary = qtr.Boundary(300, 300, 300, 300)
+    counter = 0
+    boundary = qtr.Boundary(dd[0]/2, dd[1]/2, dd[0]/2, dd[1]/2)
     quadtree = qtr.QuadTree(boundary, 4)
     points_in_range = []
+    points = []
     rectangle = None
-    for i in range(10000):
+    for i in range(1000):
         p = qtr.Point(int(random.gauss(dd[0]/2, dd[0]/8)), int(random.gauss(dd[1]/2, dd[1]/8)))
         quadtree.insert(p)
-    # for j in range(290, 310):
-    #     for k in range(290, 310):
+        points.append(p)
+    # for j in range(int((dd[0]/2)-10), int((dd[0]/2)+10)):
+    #     for k in range(int((dd[1]/2)-10), int((dd[1]/2)+10)):
     #         p = qtr.Point(j, k)
+    #         points.append(p)
     #         quadtree.insert(p)
 
     while not game_exit:
@@ -60,8 +63,8 @@ if __name__ == "__main__":
                         state = True
 
         if one_pressed:
-            width = 50
-            height = 50
+            width = 500
+            height = 500
             rectangle = qtr.Boundary(target[0], target[1], width/2, height/2)
             points_in_range = quadtree.query_range(rectangle)
         if three_pressed:
@@ -75,8 +78,14 @@ if __name__ == "__main__":
         for point in points_in_range:
             pygame.draw.circle(game_display, (0, 255, 0), (point.x, point.y), 2, 0)
 
+        for point in points:
+            if point not in points_in_range:
+                pygame.draw.circle(game_display, (0, 0, 0), (point.x, point.y), 2, 0)
+
         pygame.display.update()
         clock.tick(fps)
+        counter += 1
+        # print "Frame: {}".format(counter)
         # print clock.get_fps()
     pygame.quit()
     quit()
