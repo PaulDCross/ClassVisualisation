@@ -111,7 +111,7 @@ class QuadTree(object):
 
     def show(self, frame):
         for point in self.points:
-            pygame.draw.circle(frame, (255, 0, 0), (point.x, point.y), 2, 0)
+            pygame.draw.circle(frame, (255, 0, 0), (int(point.x), int(point.y)), 2, 0)
         pygame.draw.rect(frame, (0, 255, 0), (self.boundary.x - self.boundary.w, self.boundary.y - self.boundary.h, self.boundary.w * 2, self.boundary.h * 2), 1)
         if self.divided:
             self.north_east.show(frame)

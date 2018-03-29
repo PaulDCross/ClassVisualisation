@@ -29,7 +29,7 @@ if __name__ == "__main__":
     points = []
     rectangle = None
     for i in range(1000):
-        p = qtr.Point(int(random.gauss(dd[0]/2, dd[0]/8)), int(random.gauss(dd[1]/2, dd[1]/8)))
+        p = qtr.Point(random.gauss(dd[0]/2, dd[0]/8), random.gauss(dd[1]/2, dd[1]/8))
         quadtree.insert(p)
         points.append(p)
     # for j in range(int((dd[0]/2)-10), int((dd[0]/2)+10)):
@@ -76,11 +76,11 @@ if __name__ == "__main__":
             pygame.draw.rect(game_display, (0, 255, 0), (rectangle.x - rectangle.w, rectangle.y - rectangle.h, rectangle.w*2, rectangle.h*2), 1)
 
         for point in points_in_range:
-            pygame.draw.circle(game_display, (0, 255, 0), (point.x, point.y), 2, 0)
+            pygame.draw.circle(game_display, (0, 255, 0), (int(point.x), int(point.y)), 2, 0)
 
         for point in points:
             if point not in points_in_range:
-                pygame.draw.circle(game_display, (0, 0, 0), (point.x, point.y), 2, 0)
+                pygame.draw.circle(game_display, (0, 0, 0), (int(point.x), int(point.y)), 2, 0)
 
         pygame.display.update()
         clock.tick(fps)
