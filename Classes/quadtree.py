@@ -28,13 +28,15 @@ class Boundary(object):
 
 class QuadTree(object):
     """docstring for Quad_Tree"""
-    def __init__(self, boundary, capacity):
+    def __init__(self, boundary, capacity, parent):
         if 1 < capacity:
             self.NODE_CAPACITY = capacity
         else:
             raise ValueError("Capacity cannot equal 1")
 
         self.boundary = boundary
+        self.parent = parent
+
         self.points = []
         self.children = []
         self.divided = False
