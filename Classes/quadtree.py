@@ -1,5 +1,7 @@
 import pygame
 
+LEAF_SIZE = 4
+
 
 class Point(object):
     """docstring for point"""
@@ -28,35 +30,33 @@ class Boundary(object):
 
 class QuadTree(object):
     """docstring for Quad_Tree"""
-    def __init__(self, boundary, capacity, parent=None):
+    def __init__(self, boundary, capacity, depth=0):
         if 1 < capacity:
             self.NODE_CAPACITY = capacity
         else:
             raise ValueError("Capacity cannot equal 1")
 
         self.boundary = boundary
-        self.parent = parent
-        if self.parent is None:
-            self.depth = 0
-        else:
-            self.depth = self.parent.depth + 1
-            print self.depth
+        self.depth = depth
+        # print self.depth
+        self.leaf = self.is_leaf()
         self.points = []
         self.children = []
         self.divided = False
+
+    def is_leaf(self):
+        return (self.boundary.x2 - self.boundary.x1) <= LEAF_SIZE or (self.boundary.y2 - self.boundary.y1) <= LEAF_SIZE
 
     def subdivide(self):
         x1 = self.boundary.x1
         y1 = self.boundary.y1
         x2 = self.boundary.x2
         y2 = self.boundary.y2
-        if (x2 - x1) <= 1 or (y2 - y1) <= 1:
-            return False
-
-        north_east = QuadTree(Boundary(x1+(x2-x1)/2, y1, x2, y1+(y2-y1)/2), self.NODE_CAPACITY, self)
-        north_west = QuadTree(Boundary(x1, y1, x1+(x2-x1)/2, y1+(y2-y1)/2), self.NODE_CAPACITY, self)
-        south_east = QuadTree(Boundary(x1+(x2-x1)/2, y1+(y2-y1)/2, x2, y2), self.NODE_CAPACITY, self)
-        south_west = QuadTree(Boundary(x1, y1+(y2-y1)/2, x1+(x2-x1)/2, y2), self.NODE_CAPACITY, self)
+        depth = self.depth + 1
+        north_east = QuadTree(Boundary(x1+(x2-x1)/2, y1, x2, y1+(y2-y1)/2), self.NODE_CAPACITY, depth)
+        north_west = QuadTree(Boundary(x1, y1, x1+(x2-x1)/2, y1+(y2-y1)/2), self.NODE_CAPACITY, depth)
+        south_east = QuadTree(Boundary(x1+(x2-x1)/2, y1+(y2-y1)/2, x2, y2), self.NODE_CAPACITY, depth)
+        south_west = QuadTree(Boundary(x1, y1+(y2-y1)/2, x1+(x2-x1)/2, y2), self.NODE_CAPACITY, depth)
 
         # Children added based on clockwise rotation.
         self.children = [north_east, south_east, south_west, north_west]
@@ -72,14 +72,12 @@ class QuadTree(object):
         if not self.boundary.contains(point):
             return False
 
-        if len(self.points) < self.NODE_CAPACITY:
+        if self.is_leaf() or len(self.points) < self.NODE_CAPACITY:
             self.points.append(point)
             return True
 
         if not self.divided:
-            if not self.subdivide():
-                self.points.append(point)
-                return True
+            self.subdivide()
 
         for child in self.children:
             if child.insert(point):
