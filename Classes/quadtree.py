@@ -28,7 +28,7 @@ class Boundary(object):
 
 class QuadTree(object):
     """docstring for Quad_Tree"""
-    def __init__(self, boundary, capacity, parent):
+    def __init__(self, boundary, capacity, parent=None):
         if 1 < capacity:
             self.NODE_CAPACITY = capacity
         else:
@@ -36,7 +36,11 @@ class QuadTree(object):
 
         self.boundary = boundary
         self.parent = parent
-
+        if self.parent is None:
+            self.depth = 0
+        else:
+            self.depth = self.parent.depth + 1
+            print self.depth
         self.points = []
         self.children = []
         self.divided = False
@@ -46,11 +50,13 @@ class QuadTree(object):
         y1 = self.boundary.y1
         x2 = self.boundary.x2
         y2 = self.boundary.y2
+        if (x2 - x1) <= 1 or (y2 - y1) <= 1:
+            return False
 
-        north_east = QuadTree(Boundary(x1+(x2-x1)/2, y1, x2, y1+(y2-y1)/2), self.NODE_CAPACITY)
-        north_west = QuadTree(Boundary(x1, y1, x1+(x2-x1)/2, y1+(y2-y1)/2), self.NODE_CAPACITY)
-        south_east = QuadTree(Boundary(x1+(x2-x1)/2, y1+(y2-y1)/2, x2, y2), self.NODE_CAPACITY)
-        south_west = QuadTree(Boundary(x1, y1+(y2-y1)/2, x1+(x2-x1)/2, y2), self.NODE_CAPACITY)
+        north_east = QuadTree(Boundary(x1+(x2-x1)/2, y1, x2, y1+(y2-y1)/2), self.NODE_CAPACITY, self)
+        north_west = QuadTree(Boundary(x1, y1, x1+(x2-x1)/2, y1+(y2-y1)/2), self.NODE_CAPACITY, self)
+        south_east = QuadTree(Boundary(x1+(x2-x1)/2, y1+(y2-y1)/2, x2, y2), self.NODE_CAPACITY, self)
+        south_west = QuadTree(Boundary(x1, y1+(y2-y1)/2, x1+(x2-x1)/2, y2), self.NODE_CAPACITY, self)
 
         # Children added based on clockwise rotation.
         self.children = [north_east, south_east, south_west, north_west]
@@ -64,7 +70,6 @@ class QuadTree(object):
 
     def insert(self, point):
         if not self.boundary.contains(point):
-            # print "point [{}, {}] outside boundary [{}, {}, {}, {}]".format(point.x, point.y, self.boundary.x1, self.boundary.y1, self.boundary.x2, self.boundary.y2)
             return False
 
         if len(self.points) < self.NODE_CAPACITY:
@@ -72,7 +77,9 @@ class QuadTree(object):
             return True
 
         if not self.divided:
-            self.subdivide()
+            if not self.subdivide():
+                self.points.append(point)
+                return True
 
         for child in self.children:
             if child.insert(point):
@@ -101,7 +108,9 @@ class QuadTree(object):
     def show(self, frame):
         for point in self.points:
             pygame.draw.circle(frame, (255, 0, 0), (int(point.x), int(point.y)), 2, 0)
-        pygame.draw.rect(frame, (0, 255, 0), (self.boundary.x1, self.boundary.y1, self.boundary.x2 - self.boundary.x1, self.boundary.y2 - self.boundary.y1), 1)
+        pygame.draw.rect(frame, (0, 255, 0),
+                         (self.boundary.x1, self.boundary.y1,
+                          self.boundary.x2 - self.boundary.x1, self.boundary.y2 - self.boundary.y1), 1)
         if self.divided:
             for child in self.children:
                 child.show(frame)

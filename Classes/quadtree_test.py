@@ -39,13 +39,13 @@ if __name__ == "__main__":
     #         quadtree.insert(p)
 
     while not game_exit:
-        boundary = qtr.Boundary(0, 0, dd[0], dd[1])
-        quadtree = qtr.QuadTree(boundary, 4)
-        points = []
-        for i in range(1000):
-            p = qtr.Point(random.gauss(dd[0]/2, dd[0]/8), random.gauss(dd[1]/2, dd[1]/8))
-            quadtree.insert(p)
-            points.append(p)
+        # boundary = qtr.Boundary(0, 0, dd[0], dd[1])
+        # quadtree = qtr.QuadTree(boundary, 4)
+        # points = []
+        # for i in range(1000):
+        #     p = qtr.Point(random.gauss(dd[0]/2, dd[0]/8), random.gauss(dd[1]/2, dd[1]/8))
+        #     quadtree.insert(p)
+        #     points.append(p)
         game_display.fill(WHITE)
         quadtree.show(game_display)
         for event in pygame.event.get():
@@ -58,16 +58,12 @@ if __name__ == "__main__":
                 if event.__dict__['button'] == 1:
                     one_pressed = True
                 elif event.__dict__['button'] == 3:
-                    if state:
-                        state = False
-                        three_pressed = True
+                    three_pressed = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.__dict__['button'] == 1:
                     one_pressed = False
                 elif event.__dict__['button'] == 3:
-                    if not state:
-                        three_pressed = False
-                        state = True
+                    pass
 
         if one_pressed:
             width = 100
@@ -77,7 +73,7 @@ if __name__ == "__main__":
         if three_pressed:
             p = qtr.Point(target[0], target[1])
             quadtree.insert(p)
-            # three_pressed = False
+            three_pressed = False
 
         if rectangle is not None:
             pygame.draw.rect(game_display, (0, 255, 0), (rectangle.x1, rectangle.y1, rectangle.x2 - rectangle.x1, rectangle.y2 - rectangle.y1), 1)
