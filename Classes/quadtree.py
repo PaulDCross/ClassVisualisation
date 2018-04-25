@@ -1,4 +1,5 @@
 import pygame
+import commonLibraries.Vector as v
 
 LEAF_SIZE = 4
 
@@ -6,8 +7,7 @@ LEAF_SIZE = 4
 class Point(object):
     """docstring for point"""
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.pos = v.Vector([x, y])
 
 
 class Boundary(object):
@@ -18,8 +18,8 @@ class Boundary(object):
         self.x2 = x2
         self.y2 = y2
 
-    def contains(self, p):
-        return self.x1 <= p.x <= self.x2 and self.y1 <= p.y <= self.y2
+    def contains(self, point):
+        return self.x1 <= point.pos.x <= self.x2 and self.y1 <= point.pos.y <= self.y2
 
     def intersects(self, rectangle):
         return ((self.x2 > rectangle.x1) and
@@ -36,32 +36,31 @@ class Circle(object):
         self.rSquared = r * r
 
     def contains(self, point):
-        d = pow((point.x - self.x), 2) + pow((point.y - self.y), 2)
+        d = pow((point.pos.x - self.x), 2) + pow((point.pos.y - self.y), 2)
         return d <= self.rSquared
 
     def intersects(self, b):
         width = (b.x2 - b.x1)
         height = (b.y2 - b.y1)
 
-        xDist = abs((b.x1 + (width/2)) - self.x)
-        yDist = abs((b.y1 + (height/2)) - self.y)
+        x_dist = abs((b.x1 + (width/2)) - self.x)
+        y_dist = abs((b.y1 + (height/2)) - self.y)
 
         # Radius of the circle
         r = self.r
 
-        edges = pow((xDist - width), 2) + pow((yDist - height), 2)
+        edges = pow((x_dist - width), 2) + pow((y_dist - height), 2)
 
         # no intersection
-        if (xDist > (r + width)) or (yDist > (r + height)):
+        if (x_dist > (r + width)) or (y_dist > (r + height)):
             return False
 
         # intersection within the circle
-        if (xDist <= width) or (yDist <= height):
+        if (x_dist <= width) or (y_dist <= height):
             return True
 
         # Intersection on the edge of the circle
         return edges <= self.rSquared
-
 
 
 class QuadTree(object):
@@ -141,10 +140,10 @@ class QuadTree(object):
 
     def show(self, frame):
         for point in self.points:
-            pygame.draw.circle(frame, (255, 0, 0), (int(point.x), int(point.y)), 2, 0)
-        pygame.draw.rect(frame, (0, 255, 0),
-                         (self.boundary.x1, self.boundary.y1,
-                          self.boundary.x2 - self.boundary.x1, self.boundary.y2 - self.boundary.y1), 1)
+            pygame.draw.circle(frame, (255, 0, 0), (int(point.pos.x), int(point.pos.y)), 2, 0)
+        pygame.draw.rect(frame, (0, 255, 0), (self.boundary.x1, self.boundary.y1,
+                                              self.boundary.x2 - self.boundary.x1,
+                                              self.boundary.y2 - self.boundary.y1), 1)
         if self.divided:
             for child in self.children:
                 child.show(frame)

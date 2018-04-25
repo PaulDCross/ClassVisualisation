@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../..")
 import pygame
 import quadtree as qtr
 import random
@@ -74,7 +77,7 @@ if __name__ == "__main__":
             pygame.draw.circle(game_display, GREEN, (int(query.x), int(query.y)), query.r, 1)
             points_in_range = quadtree.query_range(query)
             for point in points_in_range:
-                pygame.draw.circle(game_display, GREEN, (int(point.x), int(point.y)), 2, 0)
+                pygame.draw.circle(game_display, GREEN, (int(point.pos.x), int(point.pos.y)), 2, 0)
 
         if three_pressed:
             p = qtr.Point(target[0], target[1])
@@ -84,7 +87,7 @@ if __name__ == "__main__":
 
         for point in points:
             if point not in points_in_range:
-                pygame.draw.circle(game_display, BLACK, (int(point.x), int(point.y)), 2, 0)
+                pygame.draw.circle(game_display, BLACK, (int(point.pos.x), int(point.pos.y)), 2, 0)
 
         pygame.display.update()
         clock.tick(fps)
