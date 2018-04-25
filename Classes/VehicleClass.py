@@ -6,14 +6,15 @@ import numpy as np
 import pygame
 import random
 
+
 class Vehicles(object):
     """docstring for Vehicles"""
     def __init__(self, display, walls):
-        self.vehicles    = []
+        self.vehicles = []
         self.gameDisplay = display
-        self.walls       = walls
+        self.walls = walls
         self.numVehicles = 0
-        self.debugging   = True
+        self.debugging = True
 
     def addVehicle(self, object):
         self.vehicles.append(object)
