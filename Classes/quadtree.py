@@ -28,6 +28,42 @@ class Boundary(object):
                 (self.y2 > rectangle.y1))
 
 
+class Circle(object):
+    def __init__(self, x, y, r):
+        self.x = x
+        self.y = y
+        self.r = r
+        self.rSquared = r * r
+
+    def contains(self, point):
+        d = pow((point.x - self.x), 2) + pow((point.y - self.y), 2)
+        return d <= self.rSquared
+
+    def intersects(self, b):
+        width = (b.x2 - b.x1)
+        height = (b.y2 - b.y1)
+
+        xDist = abs((b.x1 + (width/2)) - self.x)
+        yDist = abs((b.y1 + (height/2)) - self.y)
+
+        # Radius of the circle
+        r = self.r
+
+        edges = pow((xDist - width), 2) + pow((yDist - height), 2)
+
+        # no intersection
+        if (xDist > (r + width)) or (yDist > (r + height)):
+            return False
+
+        # intersection within the circle
+        if (xDist <= width) or (yDist <= height):
+            return True
+
+        # Intersection on the edge of the circle
+        return edges <= self.rSquared
+
+
+
 class QuadTree(object):
     """docstring for Quad_Tree"""
     def __init__(self, boundary, capacity, depth=0):
@@ -88,7 +124,7 @@ class QuadTree(object):
 
     def query_range(self, rectangle):
         points_in_range = []
-        if not (self.boundary.intersects(rectangle)):
+        if not (rectangle.intersects(self.boundary)):
             return points_in_range
 
         for point in self.points:

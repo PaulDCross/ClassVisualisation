@@ -68,9 +68,11 @@ if __name__ == "__main__":
         if one_pressed:
             width = 100
             height = 100
-            rectangle = qtr.Boundary(target[0] - width/2, target[1] - height/2, target[0] + width/2, target[1] + height/2)
-            points_in_range = quadtree.query_range(rectangle)
-            pygame.draw.rect(game_display, GREEN, (rectangle.x1, rectangle.y1, rectangle.x2 - rectangle.x1, rectangle.y2 - rectangle.y1), 1)
+            # query = qtr.Boundary(target[0] - width/2, target[1] - height/2, target[0] + width/2, target[1] + height/2)
+            # pygame.draw.rect(game_display, GREEN, (query.x1, query.y1, query.x2 - query.x1, query.y2 - query.y1), 1)
+            query = qtr.Circle(target[0], target[1], 50)
+            pygame.draw.circle(game_display, GREEN, (int(query.x), int(query.y)), query.r, 1)
+            points_in_range = quadtree.query_range(query)
             for point in points_in_range:
                 pygame.draw.circle(game_display, GREEN, (int(point.x), int(point.y)), 2, 0)
 
@@ -88,6 +90,6 @@ if __name__ == "__main__":
         clock.tick(fps)
         counter += 1
         # print "Frame: {}".format(counter)
-        print clock.get_fps()
+        # print clock.get_fps()
     pygame.quit()
     quit()
